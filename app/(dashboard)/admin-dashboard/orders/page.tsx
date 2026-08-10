@@ -1,20 +1,24 @@
 import { StatusBadge } from "@/components/orders/status-badge";
 import { getAllRentals } from "../_actions/rentalAction";
 import { Pagination } from "@/components/shared/pagination";
+import { OrderStatusFilter } from "@/components/dashboard/order-status-filter";
 
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; status?: string }>;
 }) {
   const params = await searchParams;
   const { data: rentals, meta, error } = await getAllRentals(params);
 
   return (
     <div className="space-y-4">
-      <h2 className="font-display text-xl font-bold text-foreground">
-        All Rental Orders
-      </h2>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="font-display text-xl font-bold text-foreground">
+          All Rental Orders
+        </h2>
+        <OrderStatusFilter currentStatus={params.status} />
+      </div>
 
       {error ? (
         <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">

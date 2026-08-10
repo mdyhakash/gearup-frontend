@@ -1,8 +1,7 @@
-import { Eye, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ConditionBadge } from "@/components/condition-badge";
 import { getAllGear } from "../_actions/gearAction";
+import { getAllCategories } from "../_actions/categoryAction";
 import { Pagination } from "@/components/shared/pagination";
+import { GearModerationTable } from "@/components/dashboard/gear-moderation-table";
 
 export default async function AdminGearModerationPage({
   searchParams,
@@ -10,7 +9,9 @@ export default async function AdminGearModerationPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const params = await searchParams;
-  const { data: gear, meta, error } = await getAllGear(params);
+  const [{ data: gear, meta, error }, { data: categories }] = await Promise.all(
+    [getAllGear({ page: params.page, limit: "50" }), getAllCategories()],
+  );
 
   return (
     <div className="space-y-4">
@@ -22,52 +23,7 @@ export default async function AdminGearModerationPage({
           {error}
         </p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-secondary text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-5 py-3">Gear</th>
-                <th className="px-5 py-3 hidden sm:table-cell">Provider</th>
-                <th className="px-5 py-3 hidden md:table-cell">Category</th>
-                <th className="px-5 py-3">Condition</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {gear.map((g) => (
-                <tr key={g.id}>
-                  <td className="px-5 py-4 font-medium text-foreground">
-                    {g.name}
-                  </td>
-                  <td className="hidden px-5 py-4 text-muted-foreground sm:table-cell">
-                    {g.provider.name}
-                  </td>
-                  <td className="hidden px-5 py-4 text-muted-foreground md:table-cell">
-                    {g.category.name}
-                  </td>
-                  <td className="px-5 py-4">
-                    <ConditionBadge condition={g.condition} />
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" aria-label="View">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Remove listing"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <GearModerationTable gear={gear} categories={categories} />
       )}
       {meta && <Pagination totalPages={meta.totalPages} />}
     </div>

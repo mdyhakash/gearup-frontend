@@ -4,10 +4,12 @@ import { Rental } from "@/types/rental";
 export const getAllRentals = async (params?: {
   page?: string;
   limit?: string;
+  status?: string;
 }) => {
   const query = new URLSearchParams();
   if (params?.page) query.set("page", params.page);
   if (params?.limit) query.set("limit", params.limit);
+  if (params?.status) query.set("status", params.status);
   const qs = query.toString();
 
   const result = await authFetch(`/api/admin/rentals${qs ? `?${qs}` : ""}`);

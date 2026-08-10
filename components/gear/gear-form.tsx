@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, type FormEvent } from "react";
 import { UploadCloud, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,35 @@ const initialState = {
   message: "",
 };
 
+type FieldErrors = {
+  name?: string;
+  categoryId?: string;
+  stock?: string;
+  dailyRate?: string;
+};
+
+function validate(
+  name: string,
+  categoryId: string,
+  stock: string,
+  dailyRate: string,
+): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!name.trim()) errors.name = "Gear name is required.";
+  if (!categoryId) errors.categoryId = "Please select a category.";
+  if (!stock.trim()) {
+    errors.stock = "Stock is required.";
+  } else if (Number(stock) < 0 || !Number.isFinite(Number(stock))) {
+    errors.stock = "Stock must be a number of 0 or more.";
+  }
+  if (!dailyRate.trim()) {
+    errors.dailyRate = "Daily rate is required.";
+  } else if (Number(dailyRate) <= 0 || !Number.isFinite(Number(dailyRate))) {
+    errors.dailyRate = "Daily rate must be greater than 0.";
+  }
+  return errors;
+}
+
 export function GearForm({
   categories,
   mode = "create",
@@ -73,6 +102,26 @@ export function GearForm({
     initialValues?.isAvailable ?? true,
   );
 
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget);
+    const name = String(formData.get("name") ?? "");
+    const stock = String(formData.get("stock") ?? "");
+    const dailyRate = String(formData.get("dailyRate") ?? "");
+    const errors = validate(name, categoryId, stock, dailyRate);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      e.preventDefault();
+    }
+  }
+
+  function clearError(field: keyof FieldErrors) {
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  }
+
   useEffect(() => {
     if (!state.message) return;
 
@@ -99,7 +148,12 @@ export function GearForm({
           </DialogTitle>
         </DialogHeader>
 
-        <form action={formAction} className="space-y-6">
+        <form
+          action={formAction}
+          onSubmit={handleSubmit}
+          noValidate
+          className="space-y-6"
+        >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Gear Name</Label>
@@ -108,7 +162,17 @@ export function GearForm({
                 defaultValue={initialValues?.name}
                 placeholder="e.g. 4-Person Dome Tent"
                 required
+                aria-invalid={!!fieldErrors.name}
+                aria-describedby={
+                  fieldErrors.name ? "gear-name-error" : undefined
+                }
+                onChange={() => clearError("name")}
               />
+              {fieldErrors.name && (
+                <p id="gear-name-error" className="text-xs text-destructive">
+                  {fieldErrors.name}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -136,8 +200,14 @@ export function GearForm({
             <div className="space-y-2">
               <Label>Category</Label>
 
-              <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
+              <Select
+                value={categoryId}
+                onValueChange={(value) => {
+                  setCategoryId(value);
+                  clearError("categoryId");
+                }}
+              >
+                <SelectTrigger aria-invalid={!!fieldErrors.categoryId}>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
 
@@ -151,6 +221,11 @@ export function GearForm({
               </Select>
 
               <input type="hidden" name="categoryId" value={categoryId} />
+              {fieldErrors.categoryId && (
+                <p className="text-xs text-destructive">
+                  {fieldErrors.categoryId}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -186,7 +261,18 @@ export function GearForm({
                 type="number"
                 min={0}
                 defaultValue={initialValues?.stock}
+                required
+                aria-invalid={!!fieldErrors.stock}
+                aria-describedby={
+                  fieldErrors.stock ? "gear-stock-error" : undefined
+                }
+                onChange={() => clearError("stock")}
               />
+              {fieldErrors.stock && (
+                <p id="gear-stock-error" className="text-xs text-destructive">
+                  {fieldErrors.stock}
+                </p>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -199,7 +285,18 @@ export function GearForm({
                 min={0}
                 defaultValue={initialValues?.dailyRate}
                 placeholder="15"
+                required
+                aria-invalid={!!fieldErrors.dailyRate}
+                aria-describedby={
+                  fieldErrors.dailyRate ? "gear-rate-error" : undefined
+                }
+                onChange={() => clearError("dailyRate")}
               />
+              {fieldErrors.dailyRate && (
+                <p id="gear-rate-error" className="text-xs text-destructive">
+                  {fieldErrors.dailyRate}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-3">
