@@ -28,6 +28,7 @@ const PUBLIC_ROUTES = [
   "/help",
   "/privacy",
   "/terms",
+  "/forgot-password",
   "/payment/success",
   "/payment/cancel",
 ];

@@ -29,9 +29,20 @@ const initialState = {
   statusCode: 0,
   message: "",
 };
+
 export function RegisterForm() {
   const [role, setRole] = useState<(typeof roles)[number]["value"]>("CUSTOMER");
+  const [formValues, setFormValues] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [state, action, pending] = useActionState(registerAction, initialState);
+
+  const handleChange =
+    (field: keyof typeof formValues) =>
+    (e: React.ChangeEvent<HTMLInputElement>) =>
+      setFormValues((prev) => ({ ...prev, [field]: e.target.value }));
 
   return (
     <form action={action} className="space-y-5">
@@ -67,9 +78,16 @@ export function RegisterForm() {
         ))}
       </div>
       <input type="hidden" name="role" value={role} />
+
       <div className="space-y-2">
         <Label htmlFor="name">Full name</Label>
-        <Input id="name" name="name" placeholder="Jordan Lee" />
+        <Input
+          id="name"
+          name="name"
+          placeholder="Jordan Lee"
+          value={formValues.name}
+          onChange={handleChange("name")}
+        />
       </div>
 
       <div className="space-y-2">
@@ -79,14 +97,12 @@ export function RegisterForm() {
           name="email"
           type="email"
           placeholder="you@example.com"
+          value={formValues.email}
+          onChange={handleChange("email")}
         />
       </div>
 
       <div className="grid grid-cols-1 gap-3">
-        {/* <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" type="tel" placeholder="+1 555 0100" />
-        </div> */}
         <div className="space-y-2">
           <Label htmlFor="reg-password">Password</Label>
           <Input
@@ -94,6 +110,8 @@ export function RegisterForm() {
             name="password"
             type="password"
             placeholder="••••••••"
+            value={formValues.password}
+            onChange={handleChange("password")}
           />
         </div>
       </div>
