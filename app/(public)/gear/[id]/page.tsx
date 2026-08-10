@@ -7,8 +7,9 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pagination } from "@/components/shared/pagination";
+import { GearGrid } from "@/components/gear/gear-grid";
 import { getGearReviews } from "@/app/(dashboard)/dashboard/_actions/reviewAction";
-import { getGearById } from "@/lib/actions/publicGearAction";
+import { getGearById, getAllGear } from "@/lib/actions/publicGearAction";
 
 export default async function GearDetailsPage({
   params,
@@ -23,6 +24,14 @@ export default async function GearDetailsPage({
 
   const [{ data: gear, error }, { data: reviews, meta: reviewMeta }] =
     await Promise.all([getGearById(id), getGearReviews(id, reviewPage)]);
+
+  const { data: relatedGear } = gear
+    ? await getAllGear({
+        categoryId: gear.category.id,
+        limit: "5",
+      })
+    : { data: [] };
+  const related = relatedGear.filter((g) => g.id !== id).slice(0, 4);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -152,6 +161,18 @@ export default async function GearDetailsPage({
           {/* Right column — sticky rent widget */}
           <div className="lg:sticky lg:top-24 lg:h-fit">
             <RentWidget gear={gear} />
+          </div>
+        </div>
+      )}
+
+      {/* Related items */}
+      {gear && related.length > 0 && (
+        <div className="mt-16">
+          <h2 className="font-display text-2xl font-bold text-foreground">
+            Related gear
+          </h2>
+          <div className="mt-6">
+            <GearGrid gears={related} />
           </div>
         </div>
       )}
