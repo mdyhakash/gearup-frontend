@@ -27,13 +27,49 @@
   --ring: #1f4438;
   --radius: 0.625rem;
 
-  /* rental status colors */
-  --status-placed: #c68a2e;
-  --status-confirmed: #2563ac;
-  --status-paid: #6d3fa6;
-  --status-pickedup: #2f7a4f;
-  --status-returned: #6b7280;
-  --status-cancelled: #b3432b;
+  /* rental status colors — reuse primary/accent/destructive/neutral only */
+  --status-placed: #c68a2e; /* accent (gold) */
+  --status-confirmed: #2f6650; /* primary, lighter tint */
+  --status-paid: #a06f1f; /* accent, darker tint */
+  --status-pickedup: #1f4438; /* primary */
+  --status-returned: #6b7280; /* neutral */
+  --status-cancelled: #b3432b; /* destructive */
+
+  --footer: #132d24; /* darker shade of primary */
+  --footer-foreground: #f5f6f3;
+}
+
+.dark {
+  --background: #10150f;
+  --foreground: #eef1ec;
+  --card: #17201a;
+  --card-foreground: #eef1ec;
+  --popover: #17201a;
+  --popover-foreground: #eef1ec;
+
+  --primary: #4c9a7c;
+  --primary-foreground: #0c1510;
+  --secondary: #1e2820;
+  --secondary-foreground: #dfe6df;
+  --muted: #1c251f;
+  --muted-foreground: #9aa79c;
+  --accent: #e0a84a;
+  --accent-foreground: #1c1200;
+  --destructive: #e2694a;
+  --destructive-foreground: #1c0a05;
+
+  --border: #263129;
+  --input: #263129;
+  --ring: #4c9a7c;
+
+  --status-placed: #e0a84a;
+  --status-confirmed: #5fb08d;
+  --status-paid: #c98f34;
+  --status-pickedup: #4c9a7c;
+  --status-returned: #9aa79c;
+  --status-cancelled: #e2694a;
+  --footer: #0a120d;
+  --footer-foreground: #eef1ec;
 }
 
 @theme inline {
@@ -56,6 +92,8 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 4px);
