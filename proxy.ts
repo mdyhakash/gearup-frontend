@@ -18,7 +18,19 @@ const protectedPrefixes: { prefix: string; role: Role }[] = [
 ];
 
 const AUTH_ROUTES = ["/login", "/register"];
-const PUBLIC_ROUTES = ["/", "/gear", "/payment/success", "/payment/cancel"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/gear",
+  "/cart",
+  "/about",
+  "/blog",
+  "/contact",
+  "/help",
+  "/privacy",
+  "/terms",
+  "/payment/success",
+  "/payment/cancel",
+];
 
 function matchesRoute(routes: string[], pathname: string) {
   return routes.some((r) => pathname === r || pathname.startsWith(r + "/"));
