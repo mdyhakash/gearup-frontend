@@ -39,6 +39,7 @@ const navItems: DashboardNavItem[] = [
     icon: Users,
   },
   { label: "My Profile", href: "/admin-dashboard/profile", icon: UserCircle },
+  { label: "Settings", href: "/admin-dashboard/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {

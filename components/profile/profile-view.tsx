@@ -1,4 +1,15 @@
-import { CalendarDays, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
+"use client";
+
+import { useActionState, useState, type FormEvent } from "react";
+import {
+  CalendarDays,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +17,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import type { User } from "@/types/user";
+import { updateProfileAction } from "@/app/(auth)/_actions/profileAction";
+
+type FieldErrors = { name?: string };
+
+const profileActionInitialState = {
+  success: false,
+  statusCode: 0,
+  message: "",
+};
+
+function validate(name: string): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!name.trim()) {
+    errors.name = "Please enter your name.";
+  } else if (name.trim().length < 3) {
+    errors.name = "Name must be at least 3 characters.";
+  }
+  return errors;
+}
 
 export function ProfileView({
   user,
@@ -25,6 +55,29 @@ export function ProfileView({
     month: "long",
     year: "numeric",
   });
+
+  const [state, formAction, pending] = useActionState(
+    updateProfileAction,
+    profileActionInitialState,
+  );
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget);
+    const name = String(formData.get("name") ?? "");
+    const errors = validate(name);
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      e.preventDefault();
+      return;
+    }
+  }
+
+  if (state.message && state.success) {
+    toast.success(state.message);
+  } else if (state.message && !state.success) {
+    toast.error(state.message);
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -67,10 +120,6 @@ export function ProfileView({
               </span>
             </div>
           </div>
-
-          <Button variant="outline" size="sm">
-            Change Photo
-          </Button>
         </div>
       </div>
 
@@ -85,15 +134,32 @@ export function ProfileView({
 
         <Separator className="my-5" />
 
-        <form className="space-y-5">
+        <form
+          action={formAction}
+          onSubmit={handleSubmit}
+          noValidate
+          className="space-y-5"
+        >
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
+                name="name"
                 defaultValue={user.name}
                 className="capitalize"
+                aria-invalid={!!fieldErrors.name}
+                aria-describedby={fieldErrors.name ? "name-error" : undefined}
+                onChange={() =>
+                  fieldErrors.name &&
+                  setFieldErrors((prev) => ({ ...prev, name: undefined }))
+                }
               />
+              {fieldErrors.name && (
+                <p id="name-error" className="text-xs text-destructive">
+                  {fieldErrors.name}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -115,6 +181,7 @@ export function ProfileView({
               </Label>
               <Input
                 id="phone"
+                name="phone"
                 type="tel"
                 placeholder="Add a phone number"
                 defaultValue={user.phone ?? ""}
@@ -128,6 +195,7 @@ export function ProfileView({
               </Label>
               <Input
                 id="address"
+                name="address"
                 placeholder="Add your address"
                 defaultValue={user.address ?? ""}
               />
@@ -138,6 +206,7 @@ export function ProfileView({
             <Label htmlFor="bio">Bio</Label>
             <Textarea
               id="bio"
+              name="bio"
               rows={3}
               placeholder="Tell others a bit about yourself..."
               defaultValue={user.profile.bio ?? ""}
@@ -147,12 +216,16 @@ export function ProfileView({
           <div className="flex gap-3">
             <Button
               type="submit"
+              disabled={pending}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Save Changes
-            </Button>
-            <Button type="button" variant="outline">
-              Cancel
+              {pending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </div>
         </form>

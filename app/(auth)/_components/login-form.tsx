@@ -1,8 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState, type FormEvent } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useActionState, useRef, useState, type FormEvent } from "react";
+import { flushSync } from "react-dom";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ShieldCheck,
+  ShoppingBag,
+  Tent,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +26,27 @@ const initialState = {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type FieldErrors = { email?: string; password?: string };
+
+const DEMO_ACCOUNTS = [
+  {
+    label: "Admin",
+    icon: ShieldCheck,
+    email: "admin@gearup.demo",
+    password: "Demo@1234",
+  },
+  {
+    label: "Customer",
+    icon: ShoppingBag,
+    email: "customer@gearup.demo",
+    password: "Demo@1234",
+  },
+  {
+    label: "Provider",
+    icon: Tent,
+    email: "provider@gearup.demo",
+    password: "Demo@1234",
+  },
+] as const;
 
 function validate(email: string, password: string): FieldErrors {
   const errors: FieldErrors = {};
@@ -37,6 +66,7 @@ export function LoginForm() {
   const [formValues, setFormValues] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [state, action, pending] = useActionState(loginAction, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleChange =
     (field: keyof typeof formValues) =>
@@ -55,8 +85,20 @@ export function LoginForm() {
     }
   }
 
+  function handleDemoLogin(email: string, password: string) {
+    // flushSync forces the state update (and re-render) to commit to the
+    // DOM synchronously, so the form's real input values are correct
+    // before requestSubmit reads them — no race with React's scheduler.
+    flushSync(() => {
+      setFormValues({ email, password });
+      setFieldErrors({});
+    });
+    formRef.current?.requestSubmit();
+  }
+
   return (
     <form
+      ref={formRef}
       action={action}
       onSubmit={handleSubmit}
       noValidate
@@ -147,6 +189,30 @@ export function LoginForm() {
           "Log in"
         )}
       </Button>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">
+          Or try a demo
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        {DEMO_ACCOUNTS.map((account) => (
+          <Button
+            key={account.label}
+            type="button"
+            variant="outline"
+            disabled={pending}
+            onClick={() => handleDemoLogin(account.email, account.password)}
+            className="flex h-auto flex-col gap-1.5 py-3"
+          >
+            <account.icon className="h-4 w-4" />
+            <span className="text-xs">{account.label}</span>
+          </Button>
+        ))}
+      </div>
 
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
