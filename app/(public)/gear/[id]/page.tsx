@@ -81,11 +81,9 @@ export default async function GearDetailsPage({
               </TabsList>
 
               <TabsContent value="description" className="mt-5 w-full">
-                <p>
-                  A well-maintained {gear.name.toLowerCase()} from {gear.brand},
-                  cleaned and inspected between every rental. Perfect for
-                  weekend trips and multi-day adventures. Includes carrying bag
-                  and setup instructions.
+                <p className="whitespace-pre-line">
+                  {gear.description ||
+                    "No description provided for this item yet."}
                 </p>
                 <ul className="mt-4 space-y-1.5">
                   <li>• Condition: {gear.condition}</li>

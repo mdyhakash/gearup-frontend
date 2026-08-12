@@ -19,7 +19,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/store/cart-store";
 import { createRentalOrder } from "@/app/(dashboard)/dashboard/_actions/rentalAction";
-import { createPayment } from "@/app/(dashboard)/dashboard/_actions/paymentAction";
 
 export function CartView() {
   const [mounted, setMounted] = useState(false);
