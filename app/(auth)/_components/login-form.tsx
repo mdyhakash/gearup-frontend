@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useRef, useState, type FormEvent } from "react";
 import { flushSync } from "react-dom";
+import { FcGoogle } from "react-icons/fc";
 import {
   Eye,
   EyeOff,
@@ -86,9 +87,6 @@ export function LoginForm() {
   }
 
   function handleDemoLogin(email: string, password: string) {
-    // flushSync forces the state update (and re-render) to commit to the
-    // DOM synchronously, so the form's real input values are correct
-    // before requestSubmit reads them — no race with React's scheduler.
     flushSync(() => {
       setFormValues({ email, password });
       setFieldErrors({});
@@ -188,6 +186,27 @@ export function LoginForm() {
         ) : (
           "Log in"
         )}
+      </Button>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs uppercase tracking-wide text-muted-foreground">
+          Or continue with
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        size="lg"
+        asChild
+        className="w-full"
+      >
+        <a href={`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/google`}>
+          <FcGoogle className="mr-2 h-5 w-5" />
+          Continue with Google
+        </a>
       </Button>
 
       <div className="flex items-center gap-3">
