@@ -203,7 +203,7 @@ export function LoginForm() {
         asChild
         className="w-full"
       >
-        <a href={`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/auth/google`}>
+        <a href="/api/auth/google">
           <FcGoogle className="mr-2 h-5 w-5" />
           Continue with Google
         </a>
